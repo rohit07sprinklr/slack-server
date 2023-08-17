@@ -19,7 +19,7 @@ import {
 // const { getDirectChatProfiles } = require("../utils/profileUtils");
 
 //Globals
-const PORT = 4000;
+const port = process.env.PORT || 4000;
 
 const app = express();
 app.use(cors());
@@ -120,6 +120,9 @@ app.post("/channels/:channelID", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Message app listening on port ${PORT}`);
+const server = app.listen(port, () => {
+  console.log(`App listening on port ${port}!`);
 });
+
+server.keepAliveTimeout = 120 * 1000;
+server.headersTimeout = 120 * 1000;
