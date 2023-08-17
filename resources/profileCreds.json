@@ -1,0 +1,19 @@
+{
+  "creds": [
+    {
+      "id": 1,
+      "email": "abc@workspace.com",
+      "password": "abc"
+    },
+    {
+      "id": 2,
+      "email": "def@workspace.com",
+      "password": "def"
+    },
+    {
+      "id": 3,
+      "email": "ghi@workspace.com",
+      "password": "ghi"
+    }
+  ]
+}

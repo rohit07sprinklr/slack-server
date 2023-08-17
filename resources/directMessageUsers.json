@@ -1,0 +1,8 @@
+{
+  "direct_messages": [
+    {
+      "id": 1,
+      "message_user_id": [1, 2, 3]
+    }
+  ]
+}
