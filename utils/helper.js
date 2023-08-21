@@ -1,3 +1,4 @@
+import "core-js";
 import * as constants from "./constants.js";
 import { promises as fs } from "fs";
 import path from "path";

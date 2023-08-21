@@ -1,3 +1,4 @@
+import "core-js";
 import { getFilteredMessageWithSendor, readFile, writeFile } from "./helper.js";
 import * as constants from "./constants.js";
 

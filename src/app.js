@@ -16,6 +16,7 @@ import {
 import jwt from "jsonwebtoken";
 import { secretKey } from "../utils/constants.js";
 import { authenticateJWT } from "./middleware.js";
+import "core-js";
 
 // const express = require("express");
 // const cors = require("cors");
