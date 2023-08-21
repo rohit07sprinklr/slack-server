@@ -5,8 +5,7 @@ export const PROFILE_DATA = "../resources/profileData.json";
 export const GROUP_MESSAGES = "../resources/groupMessages.json";
 export const CREDS = "../resources/profileCreds.json";
 
-export const USER_PROFILE_ID = "1";
-
+export const secretKey = "slackclonekey";
 export const GROUP = {
   CHANNEL: 1,
   CHAT_GROUP: 2,
