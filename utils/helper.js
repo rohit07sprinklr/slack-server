@@ -31,14 +31,14 @@ export async function writeFile(configJSONData, pathName) {
 export const getFilteredMessageWithSendor = async (filteredMessage) => {
   const profileInfo = await readFile(constants.PROFILE_DATA);
   return filteredMessage.map((message) => {
-    const sendorID = message["sendorId"].toString();
-    const sendorProfile = profileInfo["profiles"].filter(
-      (itm) => itm["id"].toString() === sendorID
+    const sendorID = message?.sendorId?.toString();
+    const sendorProfile = profileInfo?.profiles?.filter(
+      (itm) => itm.id.toString() === sendorID
     )[0];
     return {
       ...message,
-      sendorAvatarSrc: sendorProfile["imageSrc"],
-      sendorName: sendorProfile["name"],
+      sendorAvatarSrc: sendorProfile?.imageSrc,
+      sendorName: sendorProfile?.name,
     };
   });
 };
