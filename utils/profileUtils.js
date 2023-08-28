@@ -2,6 +2,30 @@ import "core-js";
 import { getFilteredMessageWithSendor, readFile, writeFile } from "./helper.js";
 import * as constants from "./constants.js";
 
+export async function profileSignup(body) {
+  const formData = body;
+  const profileInfo = await readFile(constants.PROFILE_DATA);
+  const newProfileID = profileInfo?.profiles?.at(-1)?.id + 1;
+
+  const newProfileBody = {
+    id: newProfileID,
+    name: formData.name,
+    imageSrc: constants.DEFAULT_PROFILE_IMAGE_SRC,
+    groups: [],
+  };
+  profileInfo?.profiles?.push(newProfileBody);
+  await writeFile(profileInfo, constants.PROFILE_DATA);
+
+  const profilecreds = await readFile(constants.CREDS);
+  const newCredBody = {
+    id: newProfileID,
+    email: formData.email,
+    password: formData.password,
+  };
+  profilecreds?.creds?.push(newCredBody);
+  await writeFile(profilecreds, constants.CREDS);
+  return { email: newCredBody.email, password: newCredBody.password };
+}
 export async function getLoginProfile(body) {
   const credential = body;
   const profilecreds = await readFile(constants.CREDS);

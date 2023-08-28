@@ -6,6 +6,7 @@ import {
   getDirectMessages,
   getLoginProfile,
   postDirectMessages,
+  profileSignup,
 } from "../utils/profileUtils.js";
 import {
   getChatChannels,
@@ -38,6 +39,22 @@ app.use(
 //Routes
 app.get("/", (req, res) => {
   res.send("App is running");
+});
+
+app.post("/signup", (req, res) => {
+  profileSignup(req.body)
+    .then((credentialBody) => {
+      getLoginProfile(credentialBody).then((profileResponse) => {
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("access-control-allow-origin", "*");
+        const accessToken = jwt.sign(profileResponse, secretKey);
+        res.end(JSON.stringify({ token: accessToken }));
+      });
+    })
+    .catch((e) => {
+      res.status(500);
+      res.send(e.JSON);
+    });
 });
 
 app.post("/login", (req, res) => {
