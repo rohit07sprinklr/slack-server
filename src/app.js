@@ -9,9 +9,13 @@ import {
   profileSignup,
 } from "../utils/profileUtils.js";
 import {
+  editChannel,
+  editGroup,
   getChatChannels,
   getChatGroups,
   getGroupChatMessages,
+  postChannel,
+  postGroup,
   postGroupMessages,
 } from "../utils/groupUtils.js";
 import jwt from "jsonwebtoken";
@@ -52,8 +56,7 @@ app.post("/signup", (req, res) => {
       });
     })
     .catch((e) => {
-      res.status(500);
-      res.send(e.JSON);
+      res.status(500).send(e.message);
     });
 });
 
@@ -66,8 +69,7 @@ app.post("/login", (req, res) => {
       res.end(JSON.stringify({ token: accessToken }));
     })
     .catch((e) => {
-      res.status(401);
-      res.send(e.JSON);
+      res.status(401).send(e.message);
     });
 });
 
@@ -79,7 +81,7 @@ app.get("/profile", authenticateJWT, (req, res) => {
     res.end(JSON.stringify(user));
   } else {
     res.status(401);
-    res.send("No profile Found");
+    res.status(401).send("No User Profile Found");
   }
 });
 
@@ -95,12 +97,15 @@ app.get("/direct-chats", authenticateJWT, (req, res) => {
 
 app.get("/direct-chats/:profileId", authenticateJWT, (req, res) => {
   const { user } = req.body;
+  const { limit } = req.query;
   const userID = user.id;
-  getDirectMessages(req.params.profileId, userID).then((profileResponse) => {
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("access-control-allow-origin", "*");
-    res.end(JSON.stringify(profileResponse));
-  });
+  getDirectMessages(req.params.profileId, userID, Number(limit)).then(
+    (profileResponse) => {
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("access-control-allow-origin", "*");
+      res.end(JSON.stringify(profileResponse));
+    }
+  );
 });
 
 app.post("/direct-chats/:profileId", authenticateJWT, (req, res) => {
@@ -124,21 +129,42 @@ app.get("/group-chats", authenticateJWT, (req, res) => {
     res.end(JSON.stringify(groupResonse));
   });
 });
+app.post("/group-chats", authenticateJWT, (req, res) => {
+  const { user } = req.body;
+  const userID = user.id;
+  postGroup(req.body, userID).then((groupResonse) => {
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("access-control-allow-origin", "*");
+    res.end(JSON.stringify(groupResonse));
+  });
+});
 
 app.get("/group-chats/:gropupID", authenticateJWT, (req, res) => {
   const { user } = req.body;
   const userID = user.id;
-  getGroupChatMessages(req.params.gropupID).then((profileResponse) => {
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("access-control-allow-origin", "*");
-    res.end(JSON.stringify(profileResponse));
-  });
+  const { limit } = req.query;
+  getGroupChatMessages(req.params.gropupID, Number(limit)).then(
+    (profileResponse) => {
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("access-control-allow-origin", "*");
+      res.end(JSON.stringify(profileResponse));
+    }
+  );
 });
 
 app.post("/group-chats/:gropupID", authenticateJWT, (req, res) => {
   const { user } = req.body;
   const userID = user.id;
   postGroupMessages(req.params.gropupID, req.body, userID).then((response) => {
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("access-control-allow-origin", "*");
+    res.end(JSON.stringify(response));
+  });
+});
+app.patch("/group-chats/:gropupID", authenticateJWT, (req, res) => {
+  const { user } = req.body;
+  const userID = user.id;
+  editGroup(Number(req.params.gropupID), req.body, userID).then((response) => {
     res.setHeader("Content-Type", "application/json");
     res.setHeader("access-control-allow-origin", "*");
     res.end(JSON.stringify(response));
@@ -154,11 +180,20 @@ app.get("/channels", authenticateJWT, (req, res) => {
     res.end(JSON.stringify(groupResonse));
   });
 });
-
-app.get("/channels/:channelID", authenticateJWT, (req, res) => {
+app.post("/channels", authenticateJWT, (req, res) => {
   const { user } = req.body;
   const userID = user.id;
-  getGroupChatMessages(req.params.channelID).then((profileResponse) => {
+  postChannel(req.body, userID).then((groupResonse) => {
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("access-control-allow-origin", "*");
+    res.end(JSON.stringify(groupResonse));
+  });
+});
+app.get("/channels/:channelID", authenticateJWT, (req, res) => {
+  const { user } = req.body;
+  const { limit } = req.query;
+  const userID = user.id;
+  getGroupChatMessages(req.params.channelID, limit).then((profileResponse) => {
     res.setHeader("Content-Type", "application/json");
     res.setHeader("access-control-allow-origin", "*");
     res.end(JSON.stringify(profileResponse));
@@ -173,6 +208,17 @@ app.post("/channels/:channelID", authenticateJWT, (req, res) => {
     res.setHeader("access-control-allow-origin", "*");
     res.end(JSON.stringify(response));
   });
+});
+app.patch("/channels/:channelID", authenticateJWT, (req, res) => {
+  const { user } = req.body;
+  const userID = user.id;
+  editChannel(Number(req.params.channelID), req.body, userID).then(
+    (response) => {
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("access-control-allow-origin", "*");
+      res.end(JSON.stringify(response));
+    }
+  );
 });
 
 const server = app.listen(port, () => {

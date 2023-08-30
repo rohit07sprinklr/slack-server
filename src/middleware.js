@@ -4,16 +4,15 @@ import "core-js";
 
 export const authenticateJWT = (req, res, next) => {
   const token = req.headers.authorization;
-  if (token) {
+  try {
     jwt.verify(token, secretKey, (err, user) => {
       if (err) {
-        return res.sendStatus(403);
+        throw Error;
       }
-      //   console.log(user);
       req.body.user = user;
       next();
     });
-  } else {
-    res.sendStatus(401);
+  } catch {
+    res.status(401).send(JSON.stringify({ Error: "Invalid Token" }));
   }
 };

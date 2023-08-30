@@ -1,10 +1,19 @@
 import "core-js";
-import { getFilteredMessageWithSendor, readFile, writeFile } from "./helper.js";
+import {
+  getFilteredMessageWithSendor,
+  paginateResponse,
+  readFile,
+  writeFile,
+} from "./helper.js";
 import * as constants from "./constants.js";
 
 export async function profileSignup(body) {
   const formData = body;
   const profileInfo = await readFile(constants.PROFILE_DATA);
+  const profilecreds = await readFile(constants.CREDS);
+  if (profilecreds?.creds.some((profile) => profile.email === formData.email)) {
+    throw Error("This Email already exists");
+  }
   const newProfileID = profileInfo?.profiles?.at(-1)?.id + 1;
 
   const newProfileBody = {
@@ -16,7 +25,6 @@ export async function profileSignup(body) {
   profileInfo?.profiles?.push(newProfileBody);
   await writeFile(profileInfo, constants.PROFILE_DATA);
 
-  const profilecreds = await readFile(constants.CREDS);
   const newCredBody = {
     id: newProfileID,
     email: formData.email,
@@ -30,29 +38,37 @@ export async function getLoginProfile(body) {
   const credential = body;
   const profilecreds = await readFile(constants.CREDS);
   const profileInfo = await readFile(constants.PROFILE_DATA);
+  const profileEmail = profilecreds["creds"].filter(
+    (itm) => itm?.email === credential.email
+  );
+  if (!profileEmail || profileEmail.length === 0) {
+    throw Error("This Email ID is not registered");
+  }
   const profile = profilecreds["creds"].filter(
     (itm) =>
-      itm?.email === credential.email && itm?.password === credential.password
+      itm?.id === profileEmail[0].id && itm?.password === credential.password
   );
-  if (profile && profile?.length) {
-    const profileID = profile[0]?.id;
-    const res = profileInfo?.profiles.filter((itm) => itm.id === profileID);
-    return res[0];
-  } else {
-    throw new Error();
+  if (!profile || profile?.length === 0) {
+    throw Error("Invalid Password");
   }
+  const profileID = profile[0]?.id;
+  const res = profileInfo?.profiles.filter((itm) => itm.id === profileID);
+  return res[0];
 }
 
 export async function getDirectChatProfiles(userID) {
-  const directMessages = await readFile(constants.DIRECT_MESSAGE_USERS);
-  const currentUserMessages = directMessages?.direct_messages?.filter(
+  // const directMessages = await readFile(constants.DIRECT_MESSAGE_USERS);
+  // const currentUserMessages = directMessages?.direct_messages?.filter(
+  //   (itm) => itm.id === userID
+  // )[0];
+  const profileInfo = await readFile(constants.PROFILE_DATA);
+  const currentUserProfile = profileInfo?.profiles?.filter(
     (itm) => itm.id === userID
   )[0];
-  const profileInfo = await readFile(constants.PROFILE_DATA);
-  const res = profileInfo?.profiles?.filter((itm) =>
-    currentUserMessages?.message_user_id?.includes(itm.id)
+  const otherUsersProfile = profileInfo?.profiles?.filter(
+    (itm) => itm.id !== userID
   );
-  return { profiles: res };
+  return { profiles: [currentUserProfile, ...otherUsersProfile] };
 }
 
 const filterUserMessage = (message, profileId, userID) => {
@@ -64,7 +80,7 @@ const filterUserMessage = (message, profileId, userID) => {
   );
 };
 
-export async function getDirectMessages(profileId, userID) {
+export async function getDirectMessages(profileId, userID, limit) {
   const directMessages = await readFile(constants.MESSAGES);
   const filteredMessage = directMessages?.messages?.filter((message) =>
     filterUserMessage(message, profileId, userID)
@@ -72,7 +88,11 @@ export async function getDirectMessages(profileId, userID) {
   const filteredMessageWithSendor = await getFilteredMessageWithSendor(
     filteredMessage
   );
-  return { messages: filteredMessageWithSendor };
+  const paginatedResponse = paginateResponse(filteredMessageWithSendor, limit);
+  return {
+    messages: paginatedResponse,
+    pageLimit: filteredMessageWithSendor.length,
+  };
 }
 
 export async function postDirectMessages(profileId, body, userID) {
@@ -90,4 +110,15 @@ export async function postDirectMessages(profileId, body, userID) {
   await writeFile(directMessages, constants.MESSAGES);
   const responseBodyArr = await getFilteredMessageWithSendor([newMessageBody]);
   return responseBodyArr[0];
+}
+
+export async function addGroupToUser(userID, groupID) {
+  const profileInfo = await readFile(constants.PROFILE_DATA);
+  const newProfileInfo = profileInfo?.profiles?.map((profile) => {
+    if (profile.id === userID) {
+      profile.groups.push(groupID);
+    }
+    return profile;
+  });
+  await writeFile({ profiles: newProfileInfo }, constants.PROFILE_DATA);
 }

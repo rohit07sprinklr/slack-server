@@ -43,3 +43,7 @@ export const getFilteredMessageWithSendor = async (filteredMessage) => {
     };
   });
 };
+
+export const paginateResponse = (responseList, limit) => {
+  return responseList.slice(Math.max(responseList.length - limit, 0));
+};
