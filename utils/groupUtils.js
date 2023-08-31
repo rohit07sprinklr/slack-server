@@ -10,7 +10,9 @@ import { addGroupToUser } from "./profileUtils.js";
 
 async function createGroup(name, type, userID) {
   const groupsData = await readFile(constants.GROUP_DATA);
-  const nextGropupID = groupsData?.group_messages?.at(-1).id + 1;
+  const nextGropupID = groupsData?.group_messages
+    ? groupsData?.group_messages?.at(-1).id + 1
+    : 1;
   const newGroupBody = {
     id: nextGropupID,
     name: name,
@@ -85,7 +87,9 @@ export async function getGroupChatMessages(group_id, limit) {
 export async function postGroupMessages(groupID, body, userID) {
   const message = body.message;
   const directMessages = await readFile(constants.GROUP_MESSAGES);
-  const messageID = directMessages?.groups?.at(-1).id + 1;
+  const messageID = directMessages?.groups
+    ? directMessages?.groups?.at(-1).id + 1
+    : 1;
   const newMessageBody = {
     id: messageID,
     timestamp: Math.floor(+new Date() / 1000),
