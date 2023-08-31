@@ -14,7 +14,7 @@ export async function profileSignup(body) {
   if (profilecreds?.creds.some((profile) => profile.email === formData.email)) {
     throw Error("This Email already exists");
   }
-  const newProfileID = profileInfo?.profiles
+  const newProfileID = profileInfo?.profiles.length
     ? profileInfo?.profiles?.at(-1)?.id + 1
     : 1;
 
@@ -100,7 +100,7 @@ export async function getDirectMessages(profileId, userID, limit) {
 export async function postDirectMessages(profileId, body, userID) {
   const message = body.message;
   const directMessages = await readFile(constants.MESSAGES);
-  const messageID = directMessages?.messages
+  const messageID = directMessages?.messages.length
     ? directMessages?.messages?.at(-1)?.id + 1
     : 1;
   const newMessageBody = {
