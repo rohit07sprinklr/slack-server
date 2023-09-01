@@ -1,3 +1,32 @@
 {
-  "group_messages": []
+  "group_messages": [
+    {
+      "id": 1,
+      "name": "clone",
+      "type": 1,
+      "members": [1, 2],
+      "imageSrc": "assets/avatar1.png"
+    },
+    {
+      "id": 2,
+      "name": "general",
+      "type": 1,
+      "members": [1, 3, 2],
+      "imageSrc": "assets/avatar2.png"
+    },
+    {
+      "id": 3,
+      "name": "Group1",
+      "type": 2,
+      "members": [1, 2],
+      "imageSrc": "assets/avatar2.png"
+    },
+    {
+      "id": 4,
+      "name": "random",
+      "type": 1,
+      "members": [1, 3],
+      "imageSrc": "assets/avatar2.png"
+    }
+  ]
 }
