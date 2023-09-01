@@ -42,6 +42,8 @@ app.use(
 
 //Routes
 app.get("/", (req, res) => {
+  res.setHeader("Content-Type", "text/html");
+  res.setHeader("access-control-allow-origin", "*");
   res.send("App is running");
 });
 
